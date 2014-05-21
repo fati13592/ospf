@@ -1,0 +1,124 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+%\usepackage[spanish]{babel}
+
+%http://www.slideshare.net/navarrojavier22/redes-y-conectividad-enrutamiento-y-protocolos-de-enrutamiento-ppts?qid=c4833f9d-6aa3-47de-ae99-ad85b512551e&v=default&b=&from_search=1
+
+%http://www.slideshare.net/FranciscoNvoaManuel/ccna-routing-switching-novedades-enrutamiento-ospf-multirea?qid=c4833f9d-6aa3-47de-ae99-ad85b512551e&v=default&b=&from_search=4#
+
+\title{Protocolos de enrutamiento OSPF}
+\author{Fátima Armenteros López}
+\date{Mayo 2014}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\titlepage
+\tableofcontents
+
+\newpage
+\section{Introducción}\label{sec:intro}
+\paragraph{  }
+  Los protocolos de enrutamiento IP funcionan en un conjunto de routers, enviando mensajes a sus routers vecinos para ayudar a estos a aprender las mejores rutas a cada subred. 
+  
+  A continuación explicaré el funcionamiento de los distintos protocolos centrandome en OSPF.
+
+
+\section{Enrutamiento}\label{sec:en}
+\paragraph{  }
+Es el proceso de seleccionar los mejores caminos en una red, es algo fundamental, ya que transfiere información de origen a destino. Se usa enrutamiento no sólo para internet si no también en distintos tipos de redes, como la telefónica.
+
+El enrutamiento IP depende de las reglas del direccionamiento IP, siendo uno de sus objetivos principales crear un enrutamiento eficiente.
+
+Los routers utilizan tres métodos para añadir rutas a sus tablas de enrutamiento: rutas conectadas directamente, rutas estáticas y protocolos de enrutamiento dinámico. Los routers siempre añaden las rutas conectadas cuando las interfaces están configuradas y funcionando.  
+
+\subsection{Enrutamiento estático}\label{subsec:enestatico}
+\paragraph{  }
+El enrutamiento estático consiste en añadir rutas a un router manualmente, sin usar protocolos de enrutamiento dinámico. Esto implica que el mantenimiento de la tabla de enrutamiento debe hacerse manualmente.
+
+Es el método menos usado.
+
+\begin{description}
+  \item[Ventajas]
+  Las rutas estáticas no requieren la misma cantidad de procesamiento y sobrecarga que requieren los protocolos de enrutamiento dinámico.
+  Son más fáciles de configuar y entender.
+  \item[Inconvenientes]
+  Cada vez que haya un cambio en la red el administrador deberá cambiar la tabla de enrutamiento manualmente.
+  No es viable en el caso de que la red sea muy grande.
+  Es más probable que se produzcan errores en la configuración.
+  Se requiere un gran conocimiento de la red. 
+\end{description}
+
+\subsection{Enrutamiento dinámico}\label{subsec:endinamico}
+\paragraph{  }
+  Las rutas son aprendidas mediante protocolos de enrutamiento dinámico, los cuales definen varias formas en que los routers dialogan entre ellos para determinar las mejores rutas a cada destino.
+  
+  Un protocolo de enrutamiento es un conjunto de mensajes, reglas y algoritmos utilizados por los routers para el aprendizaje de rutas.  
+  
+  \begin{description}
+  \item[Ventajas]
+  Se necesitan menos intervenciones del administrador de la red.
+  La configuración es menos propensa a errores.
+  Es mucho mas sencillo que la red crezca.
+  Los protocolos reaccionan automáticamente a los cambios.
+  \item[Inconvenientes]
+  Utilizan más recursos de los routers.
+  Se necesitan más conocimientos para la configuración y resolución de problemas.
+\end{description}
+
+\subsubsection{Enrutamiento interno (IGP)}
+\paragraph{  }
+  Fue diseñado y pensado para el uso en un único sistema autónomo(AS)\footnote{Un AS es una internetwork bajo el control administrativo de una única organización}.
+  
+  Los protocolos eligen la mejor ruta a una subred basándose en las métricas. 
+  
+\begin{itemize}
+  \item \textbf{Vector distancia}\\
+  RIP fue el primer protocolo por vector distancia utilizado y después se introdujo IGRP, propietario de Cisco. Las actualizaciones son periódicas.  
+  
+  Más tarde Cisco creó el protocolo EIGRP que tiene características de IGRP y soluciona algunos problemas, fue llamado un protocolo híbrido. 
+  
+  \item \textbf{Estado del enlace}\\
+  Se utiliza en algunos de los protocolos definidos más recientemente (OSPF, IS-IS). Las actualizaciones se producen por eventos.
+  
+  Solucionaron los principales problemas de los protocolos por vector distancia.
+  
+\end{itemize}
+
+  \begin{description}
+    \item[Convergencia] Los protocolos por estado de enlace son más rápidos.
+    \item[CPU y RAM] Los protocolos por estado de enlace consumen mucha más memoria.
+    \item[Prevención de bucles] Los protocolos por vector distancia necesitan de características adicionales para evitarlos.
+    \item[Diseño] Los protocolos por vector distancia no necesitan mucha planificación.
+    \item[Configuración] Los protocolos por vector distancia, normalmente, necesitan menos configuración.
+  \end{description}
+
+
+\subsubsection{Enrutamiento externo (EGP)}
+\paragraph{  }
+Fue diseñado y pensado para el uso entre diferentes sistemas autónomos.
+
+La toma de decisiones está basada en políticas.
+
+Actualmente sólo existe un EGP legítimo: BGP.
+
+
+\section{Open Shortest Path First(OSPF)}\label{sec:ospf}
+\paragraph{  }
+Es un protocolo de enrutamiendo de estado enlace no propietario y que proporciona gran escalabilidad.
+
+Sus características se podrían dividir en: vecinos, intercambio de bases de datos y cálculo de rutas. En primer lugar se forma una relación de vecindad entre los routers que sirve como base para todas las comunicaciones. Cuando ya se han hecho vecinos, intercambian el contenido de sus LSDB\footnote{Base de datos enlace-estado (link-state database)}. Una vez el router dispone de información en su LSDB, utiliza el algoritmo de Dijkstra para calcular las mejores rutas y las añade a la tabla de enrutamiento.
+
+Un router con OSPF debe contener una tabla de vecinos, una LSDB y una tabla de enrutamiento.
+
+\subsection{Vecinos}
+\paragraph{  }
+Para un router, un vecino es otro router que se conecta al mismo enlace de datos y con el que debe intercambiar información de enrutamiento. Un router sabe cuando uno de sus vecinos está bien y en el momento que pierda la conexión con alguno debe recalcular las entradas de la tabla de enrutamiento. Se pueden añadir nuevos vecinos a una red sin tener que reconfigarla gracias al proceso Hello.
+
+
+
+
+\end{document}
