@@ -110,13 +110,103 @@ Actualmente sólo existe un EGP legítimo: BGP.
 \paragraph{  }
 Es un protocolo de enrutamiendo de estado enlace no propietario y que proporciona gran escalabilidad.
 
-Sus características se podrían dividir en: vecinos, intercambio de bases de datos y cálculo de rutas. En primer lugar se forma una relación de vecindad entre los routers que sirve como base para todas las comunicaciones. Cuando ya se han hecho vecinos, intercambian el contenido de sus LSDB\footnote{Base de datos enlace-estado (link-state database)}. Una vez el router dispone de información en su LSDB, utiliza el algoritmo de Dijkstra para calcular las mejores rutas y las añade a la tabla de enrutamiento.
+Sus características se podrían dividir en: vecinos, intercambio de bases de datos y cálculo de rutas. En primer lugar se forma una relación de vecindad entre los routers que sirve como base para todas las comunicaciones. Cuando ya se han hecho vecinos, intercambian el contenido de sus LSDB\footnote{Base de datos enlace-estado (link-state database)}. Una vez el router dispone de información en su LSDB, utiliza el algoritmo SPF de Dijkstra para calcular las mejores rutas y las añade a la tabla de enrutamiento.
 
 Un router con OSPF debe contener una tabla de vecinos, una LSDB y una tabla de enrutamiento.
 
 \subsection{Vecinos}
 \paragraph{  }
-Para un router, un vecino es otro router que se conecta al mismo enlace de datos y con el que debe intercambiar información de enrutamiento. Un router sabe cuando uno de sus vecinos está bien y en el momento que pierda la conexión con alguno debe recalcular las entradas de la tabla de enrutamiento. Se pueden añadir nuevos vecinos a una red sin tener que reconfigarla gracias al proceso Hello.
+Para un router, un vecino es otro router que se conecta al mismo enlace de datos y con el que debe intercambiar información de enrutamiento. Un router sabe cuando uno de sus vecinos está bien y en el momento que pierda la conexión con alguno debe recalcular las entradas de la tabla de enrutamiento.
+
+Los vecinos necesitan saber que router les ha enviado cierto mensaje así que OSPF utiliza un ID de router(RID), que también es usado por la LSDB.
+
+ Se pueden añadir nuevos vecinos a una red sin tener que reconfigarla gracias al proceso Hello.
+
+\begin{itemize}
+  \item \textbf{Búsqueda de vecinos diciendo Hello}\\
+  Cuando el router ha seleccionado su RID y se activan las interfaces comienza a enviar paquetes Hello por multidifusión, esperando recibir paquetes Hello de otros routers.
+  
+  El mensaje Hello incluye el RID del remitente, el ID de zona, el intervalo de Hello, el intervalo muerto, la prioridad del router, el RID del router designado, el RID del router designado de respaldo y una lista de vecinos que el router remitente ya conoce.
+  
+  El router que ha recibido el Hello añade el RID del remitente a su tabla de vecinos, que enviará en el próximo Hello, en cuanto ve su propio RID en un Hello recibido asume que se ha establecido una comunicación bidireccional con ese vecino. Cuando se llega a ese punto ya se puede intercambiar información más detallada, como las LSAs\footnote{Publicación de estado del enlace (Link State Advertisement)}. 
+  \item \textbf{Problemas}\\
+  Para que dos routers se hagan vecinos es necesario que los siguientes campos coincidan:
+  
+  -La máscara de subred empleada en la subred
+  
+  -El número de subred
+  
+  -El intervalo de Hello
+  
+  -El intervalo muerto
+  
+  -El ID de área OSPF
+  
+  -Pasar las comprobaciones de autenticación en el caso de que se usen
+  
+  -El valor del indicador de área interna
+  
+  Los routers envían mensajes a intervalos marcados por el intervalo Hello y el intervalo muerto es el tiempo que esperan por un Hello antes de marcar a ese vecino como "down".
+  
+  \item \textbf{Estados de vecindad}\\
+  Son la percepción que tiene un router de la cantidad de trabajo que se ha realizado en los procesos llevados a cabo con un vecino.
+  
+  Con los estados se puede saber fácilmente si un vecino funciona correctamente.
+  
+  -Down, cuando ya se conocía la existencia del vecino pero ha fallado la interfaz.
+  
+  -Init, cuando se activa la interfaz, la relación de vecindad se está inicializando.
+  
+  -Seen, cuando recibe un Hello con su RID y todos los parámetros son correctos.
+  
+  -Full, cuando los dos vecinos conocen los mismos datos de la LSBD y son completamente adyacentes.
+  
+  \item \textbf{Router designado(DR)}\\
+  La elección de un DR sirve para que sólo se intercambie información topológica entre el DR y todos los demás routers, y no entre cada pareja de routers. Todas las actualizaciones de enrutamientos van desde y hacia el DR, el DR la distribuye a el resto de routers.
+  
+  Esto evita sobrecargar las subredes cuando hay muchos routers o , si estánrouters conectados a una LAN, evita toda la información redundante que se produciría.
+  
+  Si se pierde el DR seleccionado pueden ocurrir retardos en la convergencia, por lo que existe un router de respaldo (BDR) que puede hacer las veces de DR.
+  
+  Para elegir el DR los routers examinan los campos del paquete Hello y el que tenga el valor de prioridad más alto es el elegido, en caso de empate será el que tenga el RID más alto. Normalmente el que tenga la segunda priridad más alta es el designado para BDR.
+  
+\end{itemize}
+
+\subsection{Intercambio de datos}
+\paragraph{  }
+Los routers OSPF intercambian el contenido de sus LSDB para que ambos vecinos tengan una copia exacta de la misma. Una vez que dos routers deciden intercambiar sus bases de datos, primero se envian sus listas de LSAs y de aquellas que el router no tenga una copia se la pide al vecino que se la enviará completa.
+
+Cuando dos vecinos acaban este proceso se emplea el estado de vecindad Full. Cuando están en este estado continuan haciendo tareas de mantenimiento, siguen enviando mensajes Hello y en caso de que haya un cambio enviarán nuevas copias de las LSAs modificadas.
+
+
+\subsection{Cálculo de la tabla de enrutamiento}
+\paragraph{  }
+Para rellenar la tabla de enrutamiento cada router ejecuta el algoritmo SPF de Dijsktra aplicado a la LSDB y selecciona las mejores rutas.
+
+La LSDB está formada por listas de números de subredes y listas de routers con los enlaces a los que está conectado cada uno. Basándose en estos datos el algoritmo SPF cálcula la mejor ruta que va desde el router a las subredes de la LSDB.
+
+Para cada posible ruta se suman los costes de las interfaces salientes y OSPF selecciona la de coste más bajo. 
+
+En el caso de que se produzca un empate entre entre el coste de varias rutas hacia la misma subred, siendo este el mínimo, el router puede poner hasta 16 de ellas en la tabla de enrutamiento. Cuando esto ocurre pueden usarse a la vez todas las rutas para efectuar un equilibrado de la carga.
+
+\begin{itemize}
+  \item \textbf{Áreas de OSPF}\\
+  Un sistema autónomo OSPF puede configurarse jerárquicamente en áreas, su uso resuelve algunos de los problemas que se dan cuando las redes son muy grandes.
+  
+  Cada área ejecuta su propio algoritmo de enrutamiento, con cada router de un área difundiendo su estado a todos los demás dentro de ese área. El router fronterizo(ABR) es el responsable de sacar los paquetes fuera del área.
+  
+  Habrá también una única área que actuará como área troncal (bakbone) cuya funcion principal es enrutar el tráfico entre las demás áreas del sistema autónomo.
+\end{itemize}
+
+
+
+
+
+
+
+\begin{thebibliography}{99}
+  \bibitem{ccna}CCNA ICND2, Wendell Odom, CCIE\textregistered  No. 1624
+\end{thebibliography}
 
 
 
