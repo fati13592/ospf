@@ -2,6 +2,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.jpg}
 %\usepackage[spanish]{babel}
 
 %http://www.slideshare.net/navarrojavier22/redes-y-conectividad-enrutamiento-y-protocolos-de-enrutamiento-ppts?qid=c4833f9d-6aa3-47de-ae99-ad85b512551e&v=default&b=&from_search=1
@@ -199,15 +201,49 @@ En el caso de que se produzca un empate entre entre el coste de varias rutas hac
 \end{itemize}
 
 
+\section{Configuración básica de OSPF}
+\paragraph{  }
+Condiguración básica de prueba en Packet Tracer sobre el siguiente escenario.
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\textwidth]{1.jpg}
+    \label{fig:base}
+    \caption{escenario base}
+  \end{center}
+\end{figure}
+
+
+Cuando estén todas las interfaces de los routers configuradas y levantadas, lo primero de todo será acceder al modo de configuración de ospf y después simplemente habrá que activar ospf en cada una de las interfaces.
+
+\begin{figure}[ht!]
+  \begin{center}
+    \includegraphics[width=\textwidth]{2.jpg}
+    \label{fig:}
+    \caption{ospf en el Router2}
+  \end{center}
+\end{figure}
+
+
+\subsection{Comandos OSPF}
+\paragraph{  }
+Estos son todos los comandos que se podrían usar a la hora de configurar OSPF.
+
+router(config)\# \textbf{router ospf} \textit{proceso} --> Accede al modo de configuración de OSPF
+
+router(config-router)\# \textbf{network} \textit{direccion wildcard} \textbf{area} \textit{area-id} --> Habilita OSPF en las interfaces cuya configuración IP coincide con la dirección de red y máscara wildcard proporcionadas. Se establece un área de OSPF
+
+
+router(config-router)\# \textbf{router id} \textit{valor\_id} --> Establece el valor de ID de OSPF
+
+router(config-router)\# \textbf{default-information originate} --> Propaga la ruta estática por defecto en las actualizaciones OSPF
 
 
 
 
-
-\begin{thebibliography}{99}
-  \bibitem{ccna}CCNA ICND2, Wendell Odom, CCIE\textregistered  No. 1624
-\end{thebibliography}
-
+%
+%\begin{thebibliography}{99}
+ % \bibitem{ccna}CCNA ICND2, Wendell Odom, CCIE\textregistered  No. 1624
+%\end{thebibliography}
 
 
 
