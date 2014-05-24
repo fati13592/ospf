@@ -237,7 +237,25 @@ router(config-router)\# \textbf{router id} \textit{valor\_id} --> Establece el v
 
 router(config-router)\# \textbf{default-information originate} --> Propaga la ruta estática por defecto en las actualizaciones OSPF
 
+router(config-router)\# \textbf{auto-cost reference-bandwidth} \textit{valor} --> Establece el valor de referencia para los cálculos de coste de OSPF. Necesario en redes modernas de muy alta velocidad
 
+router(config-if)\# \textbf{bandwidth} \textit{ancho-de-banda} --> Modifica el ancho de banda teórico disponible en una interfaz
+
+router(config-if)\# \textbf{ip ospf cost} \textit{coste} --> Modifica el coste OSPF en un puerto específico
+
+router(config-if)\# \textbf{ip ospf priority} \textit{valor} --> Establece la prioridad OSPF. Es un valor comprendido entre 0 y 255
+
+router(config-if)\# \textbf{ip ospf hello-interval} \textit{segundos} --> Establece el intervalo de tiempo de los mensajes de saludo OSPF
+
+router(config-if)\# \textbf{ip ospf dead-interval} \textit{segundos} --> Establece el intervalo de espera en OSPF
+
+router\# \textbf{show ip ospf} --> Muestra información general sobre las instancias OSPF
+
+router\# \textbf{show ip ospf interface} \textit{interfaz X/Y} --> Muestra información OSPF en la interfaz
+
+router\# \textbf{show ip ospf neighbor} --> Muestra información y estado de los vecinos OSPF
+
+router\# \textbf{show ip protocols} --> Muestra información sobre los protocolos de enrutamiento activos
 
 
 %
